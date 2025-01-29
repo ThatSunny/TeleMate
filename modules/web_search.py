@@ -1,18 +1,15 @@
 from telethon import events
 from serpapi import GoogleSearch
 import configparser
+from modules.database import web_searches_collection
+from datetime import datetime
 
 # Load configurations
 config = configparser.ConfigParser()
 config.read('config.ini')
 SERPAPI_KEY = config.get('default', 'serpapi_key')
 
-async def web_search(event):
-    await event.respond("🔍 Enter your search query:")
-
-async def fetch_results(event):
-    search_query = event.text
-    
+async def fetch_results(event, search_query):
     # Call SerpAPI
     params = {
         "q": search_query,
@@ -28,5 +25,13 @@ async def fetch_results(event):
         response = f"🔎 Search Results:\n{summary}"
     else:
         response = "❌ No results found."
+
+    # Store search query & results in MongoDB
+    web_searches_collection.insert_one({
+        "chat_id": event.chat_id,
+        "query": search_query,
+        "results": results.get("organic_results", []),
+        "timestamp": datetime.now(datetime.UTC)
+    })
 
     await event.respond(response)

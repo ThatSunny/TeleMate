@@ -18,6 +18,7 @@ mongo_client = MongoClient(MONGO_URL)
 db = mongo_client[DB_NAME]
 
 # Collections
-users_collection = db["users"]
-chats_collection = db["chats"]
-files_collection = db["files"]
+users_collection = db["users"]       # Stores user details
+chats_collection = db["chats"]       # Stores chat history
+files_collection = db["files"]       # Stores image/file metadata
+web_searches_collection = db["web_searches"]  # Stores web search queries

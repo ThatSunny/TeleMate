@@ -1,4 +1,8 @@
 configparser
 telethon
 pymongo
-bson
+google-generativeai
+pillow
+pdfplumber
+python-magic
+serpapi
