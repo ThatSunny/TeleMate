@@ -2,7 +2,7 @@ from telethon import events
 from serpapi import GoogleSearch
 import configparser
 from modules.database import web_searches_collection
-from datetime import datetime
+from datetime import datetime, timezone  # Import timezone for timezone-aware timestamps
 
 # Load configurations
 config = configparser.ConfigParser()
@@ -31,7 +31,7 @@ async def fetch_results(event, search_query):
         "chat_id": event.chat_id,
         "query": search_query,
         "results": results.get("organic_results", []),
-        "timestamp": datetime.now(datetime.UTC)
+        "timestamp": datetime.now(timezone.utc)
     })
 
     await event.respond(response)

@@ -18,10 +18,43 @@ BOT_TOKEN = config.get('default', 'bot_token')
 # Start Telegram Client
 client = TelegramClient("sessions/Bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
+# Welcome message with commands
+WELCOME_MESSAGE = """
+🌟 **Welcome to the Bot!** 🌟
+
+Here’s what I can do for you:
+
+🖼️ **Image Analysis**:
+   - Upload an image, and I'll describe its content.
+
+📄 **PDF Analysis**:
+   - Upload a PDF, and I'll extract and summarize its text.
+
+🔍 **Web Search**:
+   - Use `/websearch <query>` to search the web and get a summary.
+
+💬 **Chat with AI**:
+   - Send me a message, and I'll respond using Gemini AI.
+
+📞 **Share Contact**:
+   - Share your phone number to register with the bot.
+
+📜 **Commands**:
+   - `/start` or `/help`: Show this welcome message.
+   - `/websearch <query>`: Perform a web search.
+
+Feel free to explore! 😊
+"""
+
 # 🟢 Handle /start command
 @client.on(events.NewMessage(pattern="/start"))
 async def handle_start(event):
-    await start(event)
+    await event.respond(WELCOME_MESSAGE, parse_mode='markdown')
+
+# 🟢 Handle /help command
+@client.on(events.NewMessage(pattern="/help"))
+async def handle_help(event):
+    await event.respond(WELCOME_MESSAGE, parse_mode='markdown')
 
 # 🟢 Handle contact sharing
 @client.on(events.NewMessage(func=lambda e: e.contact))
