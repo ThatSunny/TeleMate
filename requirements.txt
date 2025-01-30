@@ -6,3 +6,5 @@ pillow
 pdfplumber
 python-magic
 serpapi
+requests
+python-dotenv
