@@ -1,6 +1,10 @@
+import os
 from telethon import TelegramClient, events
 import configparser
 import asyncio
+
+# Ensure the sessions folder exists
+os.makedirs("sessions", exist_ok=True)
 
 # Import modules
 from modules.user import start, save_contact
@@ -11,6 +15,7 @@ from modules.web_search import fetch_results
 from modules.assistant import (
     set_reminder, add_todo, list_todos, complete_todo, get_weather, get_news, check_reminders
 )
+from modules.translation import handle_translation  # Import the translation handler
 
 # Load configuration
 config = configparser.ConfigParser()
@@ -57,6 +62,10 @@ Here’s what I can do for you:
 💬 **Chat with AI**:
    - Send me a message, and I'll respond using Gemini AI.
 
+🌐 **Translation**:
+   - Use `/translate <text>` to translate text to English.
+   - Use `/translate <text> to <language_code>` to translate text to a specific language.
+
 📞 **Share Contact**:
    - Share your phone number to register with the bot.
 
@@ -76,6 +85,8 @@ COMMANDS_MESSAGE = """
    - `/todo complete <task_number>`: Complete a task.
    - `/weather <location>`: Get weather updates.
    - `/news`: Fetch the latest news.
+   - `/translate <text>`: Translate text to English.
+   - `/translate <text> to <language_code>`: Translate text to a specific language.
    - `/help`: Show this message again.
 """
 
@@ -161,6 +172,21 @@ async def handle_weather(event):
 @client.on(events.NewMessage(pattern="/news"))
 async def handle_news(event):
     await get_news(event)
+
+# 🟢 Handle translation to English (default)
+@client.on(events.NewMessage(pattern=r"/translate (.+)"))
+async def handle_translation_command(event):
+    text = event.pattern_match.group(1).strip()
+    if " to " in text:
+        return  # Ignore commands that contain "to" (they will be handled by handle_translation_to_language)
+    await handle_translation(event, text, "en")
+
+# 🟢 Handle translation to a specific language
+@client.on(events.NewMessage(pattern=r"/translate (.+) to (.+)"))
+async def handle_translation_to_language(event):
+    text_to_translate = event.pattern_match.group(1).strip()
+    target_language = event.pattern_match.group(2).strip()
+    await handle_translation(event, text_to_translate, target_language)
 
 # Start the reminder checker task
 async def start_reminder_checker():
