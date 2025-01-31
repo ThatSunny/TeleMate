@@ -18,14 +18,6 @@ def validate_time(time_str):
     except ValueError:
         return False
 
-# Helper function to validate time format
-def validate_time(time_str):
-    try:
-        datetime.strptime(time_str, "%H:%M")
-        return True
-    except ValueError:
-        return False
-
 # Set a reminder
 async def set_reminder(event, time_str, message):
     if not validate_time(time_str):
@@ -123,15 +115,3 @@ async def get_news(event):
 
     news_list = "\n".join([f"📰 {article['title']}" for article in articles])
     await event.respond(f"📰 Top News Headlines:\n{news_list}")
-
-# Background task to check reminders
-async def check_reminders(client):
-    while True:
-        now = datetime.now(timezone.utc)
-        reminders = reminders_collection.find({"time": {"$lte": now.isoformat()}})
-
-        for reminder in reminders:
-            await client.send_message(reminder["chat_id"], f"⏰ Reminder: {reminder['message']}")
-            reminders_collection.delete_one({"_id": reminder["_id"]})
-
-        await asyncio.sleep(60)  # Check every minute

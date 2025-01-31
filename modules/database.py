@@ -11,7 +11,7 @@ PASSWORD = urllib.parse.quote_plus(config.get('default', 'password'))
 DB_NAME = config.get('default', 'db_name')
 
 # Correctly formatted MongoDB URI
-MONGO_URL = f"mongodb+srv://{USERNAME}:{PASSWORD}@tgbot.bihau.mongodb.net/{DB_NAME}?retryWrites=true&w=majority"
+MONGO_URL = f"mongodb+srv://{USERNAME}:{PASSWORD}@telemate.mkqh5.mongodb.net/{DB_NAME}?retryWrites=true&w=majority&appName=TeleMate"
 
 # Connect to MongoDB
 mongo_client = MongoClient(MONGO_URL)

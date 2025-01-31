@@ -41,16 +41,16 @@ Here’s what I can do for you:
    - Upload a PDF, and I'll extract and summarize its text.
 
 🔍 **Web Search**:
-   - Use `/websearch <query>` to search the web and get a summary.
+   - Use `/search <query>` to search the web and get a summary.
 
 ⏰ **Reminders**:
    - Set reminders with `/remind <time> <message>`.
    - Example: `/remind 18:00 Buy groceries`.
 
 📜 **To-Do List**:
-   - Add tasks with `/todo add <task>`.
-   - View tasks with `/todo list`.
-   - Complete tasks with `/todo complete <task_number>`.
+   - Add tasks with `/addtask <task>`.
+   - View tasks with `/tasks`.
+   - Complete tasks with `/completetask <task_number>`.
 
 🌤️ **Weather Updates**:
    - Get weather updates with `/weather <location>`.
@@ -64,7 +64,7 @@ Here’s what I can do for you:
 
 🌐 **Translation**:
    - Use `/translate <text>` to translate text to English.
-   - Use `/translate <text> to <language_code>` to translate text to a specific language.
+   - Use `/translate <text> <language_code>` to translate text to a specific language.
 
 📞 **Share Contact**:
    - Share your phone number to register with the bot.
@@ -78,15 +78,15 @@ Feel free to explore! 😊
 COMMANDS_MESSAGE = """
 📜 **Commands**:
    - `/start`: Show this welcome message.
-   - `/websearch <query>`: Perform a web search.
+   - `/search <query>`: Perform a web search.
    - `/remind <time> <message>`: Set a reminder.
-   - `/todo add <task>`: Add a task.
-   - `/todo list`: View your to-do list.
-   - `/todo complete <task_number>`: Complete a task.
+   - `/addtask <task>`: Add a task.
+   - `/tasks`: View your to-do list.
+   - `/completetask <task_number>`: Complete a task.
    - `/weather <location>`: Get weather updates.
    - `/news`: Fetch the latest news.
    - `/translate <text>`: Translate text to English.
-   - `/translate <text> to <language_code>`: Translate text to a specific language.
+   - `/translate <text> <language_code>`: Translate text to a specific language.
    - `/help`: Show this message again.
 """
 
@@ -148,16 +148,16 @@ async def handle_reminder(event):
     await set_reminder(event, time_str, message)
 
 # 🟢 Handle to-do tasks
-@client.on(events.NewMessage(pattern=r"/todo add (.+)"))
+@client.on(events.NewMessage(pattern=r"/addtask (.+)"))
 async def handle_todo_add(event):
     task = event.pattern_match.group(1)
     await add_todo(event, task)
 
-@client.on(events.NewMessage(pattern="/todo list"))
+@client.on(events.NewMessage(pattern="/tasks"))
 async def handle_todo_list(event):
     await list_todos(event)
 
-@client.on(events.NewMessage(pattern=r"/todo complete (\d+)"))
+@client.on(events.NewMessage(pattern=r"/complete (\d+)"))
 async def handle_todo_complete(event):
     task_number = int(event.pattern_match.group(1))
     await complete_todo(event, task_number)
@@ -177,12 +177,12 @@ async def handle_news(event):
 @client.on(events.NewMessage(pattern=r"/translate (.+)"))
 async def handle_translation_command(event):
     text = event.pattern_match.group(1).strip()
-    if " to " in text:
-        return  # Ignore commands that contain "to" (they will be handled by handle_translation_to_language)
+    if " " in text:
+        return  # Ignore commands that contain a space (they will be handled by handle_translation_to_language)
     await handle_translation(event, text, "en")
 
 # 🟢 Handle translation to a specific language
-@client.on(events.NewMessage(pattern=r"/translate (.+) to (.+)"))
+@client.on(events.NewMessage(pattern=r"/translate (.+) (.+)"))
 async def handle_translation_to_language(event):
     text_to_translate = event.pattern_match.group(1).strip()
     target_language = event.pattern_match.group(2).strip()
