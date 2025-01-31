@@ -63,7 +63,7 @@ async def handle_translation(event, text, target_language="en"):
             "chat_id": chat_id,
             "user_message": text,
             "translated_message": translated_text,
-            "timestamp": datetime.utc()
+            "timestamp": datetime.now()
         })
 
         await event.respond(f"🈹 Translated: {translated_text}")

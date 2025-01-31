@@ -48,7 +48,8 @@ async def check_reminders(client):
         reminders = reminders_collection.find({"time": {"$lte": now.isoformat()}})
 
         for reminder in reminders:
-            await client.send_message(reminder["chat_id"], f"⏰ Reminder: {reminder['message']}")
+            # Send a GIF with the reminder message
+            await client.send_message(reminder["chat_id"], file="data/gifs/reminder_triggered.gif", message=f"⏰ Reminder: {reminder['message']}")
             reminders_collection.delete_one({"_id": reminder["_id"]})
 
         await asyncio.sleep(60)  # Check every minute
@@ -60,7 +61,7 @@ async def add_todo(event, task):
         "task": task,
         "status": "pending"
     })
-    await event.respond(f"✅ Task added: {task}")
+    await event.respond(file="data/gifs/task_added.gif", message=f"✅ Task added: {task}")
 
 # List to-do tasks
 async def list_todos(event):
@@ -85,33 +86,30 @@ async def complete_todo(event, task_number):
 
     task = tasks[task_number - 1]
     todos_collection.update_one({"_id": task["_id"]}, {"$set": {"status": "completed"}})
-    await event.respond(f"🎉 Task completed: {task['task']}")
+    await event.respond(file="data/gifs/celebration.gif", message="🎉 Task completed! Great job!")
 
 # Get weather updates
 async def get_weather(event, location):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={OPENWEATHERMAP_API_KEY}&units=metric"
     response = requests.get(url)
     if response.status_code != 200:
-        await event.respond("❌ Could not fetch weather data. Please try again.")
-        return
+        return "❌ Could not fetch weather data. Please try again."
 
     data = response.json()
     weather = data["weather"][0]["description"]
     temp = data["main"]["temp"]
-    await event.respond(f"🌤️ Weather in {location}: {weather}, {temp}°C")
+    return f"🌤️ Weather in {location}: {weather}, {temp}°C"
 
 # Get news headlines
 async def get_news(event):
     url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={NEWSAPI_KEY}"
     response = requests.get(url)
     if response.status_code != 200:
-        await event.respond("❌ Could not fetch news. Please try again.")
-        return
+        return "❌ Could not fetch news. Please try again."
 
     articles = response.json().get("articles", [])[:5]  # Get top 5 headlines
     if not articles:
-        await event.respond("❌ No news found.")
-        return
+        return "❌ No news found."
 
     news_list = "\n".join([f"📰 {article['title']}" for article in articles])
-    await event.respond(f"📰 Top News Headlines:\n{news_list}")
+    return f"📰 Top News Headlines:\n{news_list}"

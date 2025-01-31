@@ -2,6 +2,7 @@ import os
 from telethon import TelegramClient, events
 import configparser
 import asyncio
+from telethon import events
 
 # Ensure the sessions folder exists
 os.makedirs("sessions", exist_ok=True)
@@ -66,9 +67,6 @@ Here’s what I can do for you:
    - Use `/translate <text>` to translate text to English.
    - Use `/translate <text> <language_code>` to translate text to a specific language.
 
-📞 **Share Contact**:
-   - Share your phone number to register with the bot.
-
 For a list of commands, type `/help`.
 
 Feel free to explore! 😊
@@ -106,11 +104,9 @@ async def handle_start(event):
             "date_joined": event.date
         }
         users_collection.insert_one(user_data)
-        await event.respond("Welcome! You have been registered in the database.", parse_mode='markdown')
-    else:
-        await event.respond("Welcome back!", parse_mode='markdown')
 
-    await event.respond(WELCOME_MESSAGE, parse_mode='markdown')
+    # Send welcome GIF with caption
+    await event.respond(file="data/gifs/welcome.gif", message=WELCOME_MESSAGE, parse_mode='markdown')
 
 # 🟢 Handle /help command
 @client.on(events.NewMessage(pattern="/help"))
@@ -123,7 +119,7 @@ async def handle_contact(event):
     await save_contact(event)
 
 # 🟢 Handle web searches
-@client.on(events.NewMessage(pattern=r"/websearch (.+)"))
+@client.on(events.NewMessage(pattern=r"/search (.+)"))
 async def handle_websearch(event):
     query = event.pattern_match.group(1)
     await fetch_results(event, query)
@@ -145,7 +141,9 @@ async def handle_user_chat(event):
 async def handle_reminder(event):
     time_str = event.pattern_match.group(1)
     message = event.pattern_match.group(2)
-    await set_reminder(event, time_str, message)
+
+    # Send a GIF with caption for setting a reminder
+    await event.respond(file="data/gifs/reminder_set.gif", message=f"⏰ Reminder set for {time_str}: {message}")
 
 # 🟢 Handle to-do tasks
 @client.on(events.NewMessage(pattern=r"/addtask (.+)"))
@@ -153,25 +151,39 @@ async def handle_todo_add(event):
     task = event.pattern_match.group(1)
     await add_todo(event, task)
 
+    # Send a GIF with caption for adding a task
+    await event.respond(file="data/gifs/task_added.gif", message=f"✅ Task added: {task}")
+
 @client.on(events.NewMessage(pattern="/tasks"))
 async def handle_todo_list(event):
-    await list_todos(event)
+    tasks = await list_todos(event)
+    await event.respond(tasks)
 
-@client.on(events.NewMessage(pattern=r"/complete (\d+)"))
+@client.on(events.NewMessage(pattern=r"/completetask (\d+)"))
 async def handle_todo_complete(event):
     task_number = int(event.pattern_match.group(1))
     await complete_todo(event, task_number)
+
+    # Send a celebratory GIF with caption for completing a task
+    await event.respond(file="data/gifs/celebration.gif", message="🎉 Task completed! Great job!")
 
 # 🟢 Handle weather updates
 @client.on(events.NewMessage(pattern=r"/weather (.+)"))
 async def handle_weather(event):
     location = event.pattern_match.group(1)
-    await get_weather(event, location)
+    weather_response = await get_weather(event, location)
+
+    # Send a weather-related GIF with caption
+    await event.respond(file="data/gifs/weather.gif", message=weather_response)
 
 # 🟢 Handle news headlines
 @client.on(events.NewMessage(pattern="/news"))
 async def handle_news(event):
-    await get_news(event)
+    # Await the get_news coroutine to get the news response
+    news_response = await get_news(event)
+
+    # Send a news-related GIF with caption
+    await event.respond(file="data/gifs/news.gif", message=news_response)
 
 # 🟢 Handle translation to English (default)
 @client.on(events.NewMessage(pattern=r"/translate (.+)"))
